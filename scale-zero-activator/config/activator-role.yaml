@@ -51,3 +51,10 @@ rules:
   - "update"
   - "patch"
   - "delete"
+- apiGroups:
+  - "apps"
+  resources:
+  - "deployments/scale"
+  verbs:
+  - "get"
+  - "update"
