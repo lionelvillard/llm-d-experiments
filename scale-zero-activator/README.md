@@ -84,37 +84,6 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
             }'
     ```
 
-1. Send a request to the gateway (with bbr) (in a different terminal):
-
-    ```shell
-    curl localhost:8080/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -d '{
-                    "model": "meta-llama/Llama-3.1-8B-Instruct",
-                    "max_tokens": 100,
-                    "messages": [
-                      {
-                        "role": "user",
-                        "content": "Linux is said to be an open source kernel because "
-                      }
-                    ]
-            }'
-    ```
-
-    ```shell
-    curl localhost:8080/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -d '{
-                    "model": "granite/granite3-8B",
-                    "max_tokens": 100,
-                    "messages": [
-                      {
-                        "role": "user",
-                        "content": "Linux is said to be an open source kernel because "
-                      }
-                    ]
-            }'
-    ```
 ## Cleaning up
 
 To clean up the deployed resources, run:
@@ -123,20 +92,18 @@ To clean up the deployed resources, run:
 kubectl delete ns sza
 ```
 
-
 ## Experiment 2: deploying with BBR
 
 ### Deploying BBR
 
 Run the following command to deploy BBR:
 
-
-    ```shell
-    helm install body-based-router \
-         --set provider.name=istio \
-         --version v1.0.0 \
-         oci://registry.k8s.io/gateway-api-inference-extension/charts/body-based-routing
-    ```
+```shell
+helm install body-based-router \
+        --set provider.name=istio \
+        --version v1.0.0 \
+        oci://registry.k8s.io/gateway-api-inference-extension/charts/body-based-routing
+```
 
 ### Deploying the models
 
