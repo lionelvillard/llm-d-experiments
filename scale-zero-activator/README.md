@@ -12,11 +12,12 @@ and instead relies on the Gateway API URL rewriting capabilities.
 
 The second experiment deploys the models with BBR.
 
-
 ## Prerequisites
 
 Before running the experiments, ensure you have completed the prerequisites
 outlined in the [prereq directory](./prereq/README.md).
+
+Make sure to install the Scale to/from Zero Activator.
 
 You can run this experiment on a local Kubernetes cluster using [kind](https://kind.sigs.k8s.io/).
 

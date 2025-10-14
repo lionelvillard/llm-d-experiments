@@ -1,0 +1,92 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: granite3-8b-activator
+spec:
+  configPatches:
+  - applyTo: HTTP_ROUTE
+    match:
+      routeConfiguration:
+        vhost:
+          name: "*:80"
+          route:
+            name: sza.granite3-8b.0 # TODO: what .0?
+    patch:
+      operation: MERGE
+      value:
+        typed_per_filter_config:
+          envoy.filters.http.activator.ext_proc:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExtProcPerRoute
+            overrides:
+              processing_mode:
+                request_header_mode: "SEND"
+                response_header_mode: "SKIP"
+                request_body_mode: "FULL_DUPLEX_STREAMED"
+                response_body_mode: "NONE"
+                request_trailer_mode: "SEND"
+                response_trailer_mode: "SKIP"
+              grpc_service:
+                envoy_grpc:
+                  cluster_name: outbound|9002||granite3-8b-activator.sza.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: granite3-8b-activator
+spec:
+  host: granite3-8b-activator.sza.svc.cluster.local
+  trafficPolicy:
+      tls:
+        mode: SIMPLE
+        insecureSkipVerify: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: granite3-8b-activator
+spec:
+  selector:
+    matchLabels:
+      app: granite3-8b-activator
+  template:
+    metadata:
+      labels:
+        app: granite3-8b-activator
+    spec:
+      containers:
+      - name: activator
+        image: kind.local/llm-d-activator/activator:dev
+        imagePullPolicy: Never
+        args:
+        - --pool-name
+        - granite3-8b-epp
+        - --pool-namespace
+        - sza
+        - --pool-group
+        - inference.networking.x-k8s.io
+        - --zap-encoder
+        - json
+        - --v
+        - "2"
+        ports:
+        - containerPort: 9002
+          name: grpc
+          protocol: TCP
+        - containerPort: 9003
+          name: grpc-health
+          protocol: TCP
+      serviceAccountName: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: granite3-8b-activator
+spec:
+  selector:
+    app: granite3-8b-activator
+  ports:
+  - name: grpc-ext-proc
+    port: 9002
+    protocol: TCP
+    targetPort: 9002
+  type: ClusterIP

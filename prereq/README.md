@@ -11,24 +11,32 @@ the Inference Gateway Extension Istio implementation and llm-d.
 
 1. (Optional) Create a local Kubernetes cluster using [kind](https://kind.sigs.k8s.io/):
 
-```bash
-./0-create-kind.sh
-```
+    ```bash
+    ./0-create-kind.sh
+    ```
 
 1. Install the Inference Gateway Extension Istio implementation
 
-```bash
-./1-install-igw.sh
-```
+    ```bash
+    ./1-install-igw.sh
+    ```
 
 1. (Optional) Install the body-based router
 
-```bash
-./2-install-bbr.sh
-```
+    ```bash
+    ./2-install-bbr.sh
+    ```
 
-1. (Optional) Uninstall llm-d and the Inference Gateway Extension Istio implementation
+1. (Optional) Install the Scale to/from Zero Activator
 
-```bash
-./2-uninstall-llm-d.sh
-```
+    `amd64` target:
+
+    ```bash
+    ./3-install-activator-kind.sh
+    ```
+
+    `arm64` target:
+
+    ```bash
+    env TARGETARCH=arm64 ./3-install-activator-kind.sh
+    ```
