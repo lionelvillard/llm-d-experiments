@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: granite3-8b-epp
+spec:
+  host: granite3-8b-epp.sza.svc.cluster.local
+  trafficPolicy:
+    tls:
+      insecureSkipVerify: true
+      mode: SIMPLE

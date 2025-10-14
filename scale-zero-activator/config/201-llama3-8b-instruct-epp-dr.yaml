@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: llama3-8b-instruct-epp
+spec:
+  host: llama3-8b-instruct-epp.sza.svc.cluster.local
+  trafficPolicy:
+    tls:
+      insecureSkipVerify: true
+      mode: SIMPLE

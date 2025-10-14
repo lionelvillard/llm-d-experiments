@@ -1,0 +1,52 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sza
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: sza
+  rules:
+    - backendRefs:
+      - group: inference.networking.x-k8s.io
+        kind: InferencePool
+        name: llama3-8b-instruct-epp
+        port: 8000
+      filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            replacePrefixMatch: /
+            type: ReplacePrefixMatch
+      matches:
+      - path:
+          type: PathPrefix
+          value: /llama3
+        # headers:
+        # - type: Exact
+        #   name: X-Gateway-Model-Name
+        #   value: 'meta-llama/Llama-3.1-8B-Instruct'
+      timeouts:
+        request: 300s
+    - backendRefs:
+      - group: inference.networking.x-k8s.io
+        kind: InferencePool
+        name: granite3-8b-epp
+        port: 8000
+      filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            replacePrefixMatch: /
+            type: ReplacePrefixMatch
+      matches:
+      - path:
+          type: PathPrefix
+          value: /granite3
+        # headers:
+        # - type: Exact
+        #   name: X-Gateway-Model-Name
+        #   value: 'meta-llama/Llama-3.1-8B-Instruct'
+      timeouts:
+        request: 300s

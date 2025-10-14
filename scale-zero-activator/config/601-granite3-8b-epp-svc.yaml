@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: granite3-8b-epp
+spec:
+  selector:
+    inferencepool: granite3-8b-epp
+  ports:
+  - name: grpc-ext-proc
+    port: 9002
+    protocol: TCP
+    targetPort: 9002
+  - name: http-metrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  type: ClusterIP
