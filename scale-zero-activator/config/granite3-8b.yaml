@@ -152,57 +152,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: granite3-8b-activator
-spec:
-  selector:
-    matchLabels:
-      app: granite3-8b-activator
-  template:
-    metadata:
-      labels:
-        app: granite3-8b-activator
-    spec:
-      containers:
-      - name: activator
-        image: kind.local/llm-d-incubation/llm-d-activator:dev
-        imagePullPolicy: Never
-        args:
-        - --pool-name
-        - granite3-8b-epp
-        - --pool-namespace
-        - sza
-        - --pool-group
-        - inference.networking.x-k8s.io
-        - --zap-encoder
-        - json
-        - --v
-        - "2"
-        ports:
-        - containerPort: 9002
-          name: grpc
-          protocol: TCP
-        - containerPort: 9003
-          name: grpc-health
-          protocol: TCP
-      serviceAccountName: default
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: granite3-8b-activator
-spec:
-  selector:
-    app: granite3-8b-activator
-  ports:
-  - name: grpc-ext-proc
-    port: 9002
-    protocol: TCP
-    targetPort: 9002
-  type: ClusterIP
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: granite3-8b
 spec:
   replicas: 0 # for scale from zero
@@ -240,3 +189,9 @@ spec:
         - containerPort: 8000
           name: http
           protocol: TCP
+        readinessProbe:
+          httpGet:
+             path: /health
+             port: 8000
+          initialDelaySeconds: 10 # simulate vllm startup time (optimized)
+          periodSeconds: 5

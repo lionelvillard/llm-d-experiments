@@ -12,6 +12,8 @@ and instead relies on the Gateway API URL rewriting capabilities.
 
 The second experiment deploys the models with BBR.
 
+In both experiments, scale from zero is enabled for `granite/granite3-8B` only.
+
 ## Prerequisites
 
 Before running the experiments, ensure you have completed the prerequisites
@@ -21,7 +23,7 @@ Make sure to install the Scale to/from Zero Activator.
 
 You can run this experiment on a local Kubernetes cluster using [kind](https://kind.sigs.k8s.io/).
 
-## Experiment 1: deploying without BBR
+## Experiment 1: deploying with URL rewriting
 
 ### Deploying the models
 
@@ -52,7 +54,7 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
     kubectl port-forward svc/sza-istio 8080:80
     ```
 
-1. Send a request to the gateway (in a different terminal):
+1. Send a `meta-llama/Llama-3.1-8B-Instruct` request to the gateway (in a different terminal):
 
     ```shell
     curl localhost:8080/llama3/v1/chat/completions \
@@ -69,6 +71,10 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
             }'
     ```
 
+    You should get a response quickly.
+
+1. Send a `granite/granite3-8B` request to the gateway:
+
     ```shell
     curl localhost:8080/granite3/v1/chat/completions \
             -H "Content-Type: application/json" \
@@ -83,6 +89,10 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
                     ]
             }'
     ```
+
+    You shoud get a response after waiting about 10s to 15s; the vllm simulator container readiness probe initial delay is set to 10s.
+
+    > Known problem: sometimes the EPP internal state is not in sync with the activator internal state. If you get `no healthy upstream`, repeat the experiment by first scaling down to zero the `granite3-8b` deployments.
 
 ## Cleaning up
 
@@ -134,7 +144,7 @@ helm install body-based-router \
     kubectl port-forward svc/sza-istio 8080:80
     ```
 
-1. Send a request to the gateway (with bbr) (in a different terminal):
+1. Send a `meta-llama/Llama-3.1-8B-Instruct` request to the gateway (in a different terminal):
 
     ```shell
     curl localhost:8080/v1/chat/completions \
@@ -151,6 +161,10 @@ helm install body-based-router \
             }'
     ```
 
+    You should get a response quickly.
+
+1. Send a `granite/granite3-8B` request to the gateway:
+
     ```shell
     curl localhost:8080/v1/chat/completions \
             -H "Content-Type: application/json" \
@@ -165,6 +179,11 @@ helm install body-based-router \
                     ]
             }'
     ```
+
+    You shoud get a response after waiting about 10s to 15s; the vllm simulator container readiness probe initial delay is set to 10s.
+
+    > Known problem: sometimes the EPP internal state is not in sync with the activator internal state. If you get `no healthy upstream`, repeat the experiment by first scaling down to zero the `granite3-8b` deployments.
+
 ## Cleaning up
 
 To clean up the deployed resources, run:

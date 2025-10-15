@@ -12,7 +12,5 @@ pushd ${TMP_DIR} > /dev/null
 make image-kind KIND_CLUSTER=llm-d STAGING_IMAGE_REGISTRY=kind.local GIT_TAG=dev
 log_success "Activator image built and loaded."
 
-cd charts
-helm install activator-filter ./activator-filter --set name=activator
 
 popd # TMP_DIR

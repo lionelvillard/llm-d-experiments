@@ -16,11 +16,11 @@ spec:
       matches:
       - path:
           type: PathPrefix
-          value: /granite3
+          value: /
         headers:
         - type: Exact
           name: X-Gateway-Model-Name
-          value: 'meta-llama/Llama-3.1-8B-Instruct'
+          value: 'granite/granite3-8B'
       timeouts:
         request: 300s
 ---
@@ -39,6 +39,10 @@ apiVersion: inference.networking.x-k8s.io/v1alpha2
 kind: InferencePool
 metadata:
   name: granite3-8b-epp
+  annotations:
+    activator.llm-d.ai/target-apiversion: apps/v1
+    activator.llm-d.ai/target-kind: Deployment
+    activator.llm-d.ai/target-name: granite3-8b
 spec:
   extensionRef:
     failureMode: FailClose
@@ -149,7 +153,7 @@ kind: Deployment
 metadata:
   name: granite3-8b
 spec:
-  replicas: 1
+  replicas: 0 # for scale from zero
   selector:
     matchLabels:
       llm-d.ai/model: "granite3-8b"
@@ -184,3 +188,9 @@ spec:
         - containerPort: 8000
           name: http
           protocol: TCP
+        readinessProbe:
+          httpGet:
+             path: /health
+             port: 8000
+          initialDelaySeconds: 10 # simulate vllm startup time (optimized)
+          periodSeconds: 5
