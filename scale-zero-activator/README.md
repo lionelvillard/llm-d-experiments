@@ -17,7 +17,7 @@ In both experiments, scale from zero is enabled for `granite/granite3-8B` only.
 ## Prerequisites
 
 Before running the experiments, ensure you have completed the prerequisites
-outlined in the [prereq directory](./prereq/README.md).
+outlined in the [prereq directory](../prereq/README.md).
 
 Make sure to install the Scale to/from Zero Activator.
 
