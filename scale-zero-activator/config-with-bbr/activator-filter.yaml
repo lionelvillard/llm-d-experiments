@@ -21,3 +21,4 @@ spec:
           grpc_service:
             envoy_grpc:
               cluster_name: no-op
+          message_timeout: 120s

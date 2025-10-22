@@ -54,6 +54,25 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
     kubectl port-forward svc/sza-istio 8080:80
     ```
 
+
+### Getting the list of models
+
+1. Send a request to get the list of models availables for `granite/granite3-8B` base model:
+
+    ```shell
+    curl localhost:8080/granite3/v1/models
+    ```
+
+    After 10-15s, you should see one model listed.
+
+1. Reset the activator state by scaling down to zero the `granite3-8b` deployments:
+
+    ```shell
+    kubectl scale deployment granite3-8b --replicas=0
+    ```
+
+### Chat completion requests
+
 1. Send a `meta-llama/Llama-3.1-8B-Instruct` request to the gateway (in a different terminal):
 
     ```shell
@@ -93,6 +112,7 @@ You can run this experiment on a local Kubernetes cluster using [kind](https://k
     You shoud get a response after waiting about 10s to 15s; the vllm simulator container readiness probe initial delay is set to 10s.
 
     > Known problem: sometimes the EPP internal state is not in sync with the activator internal state. If you get `no healthy upstream`, repeat the experiment by first scaling down to zero the `granite3-8b` deployments.
+
 
 ## Cleaning up
 
@@ -191,3 +211,5 @@ To clean up the deployed resources, run:
 ```shell
 kubectl delete ns sza
 ```
+
+curl localhost:8080/v1/models
