@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: activator
-        image: kind.local/llm-d-activator/activator:dev
+        image: ghcr.io/llm-d/llm-d-activator:dev
         imagePullPolicy: Never
         args:
         - --pool-name
