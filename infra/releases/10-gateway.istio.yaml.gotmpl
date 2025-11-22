@@ -1,0 +1,41 @@
+
+releases:
+  - name: istio-base
+    chart: oci://gcr.io/istio-testing/charts/base
+    version: {{ .Values.istio.tag }}
+    namespace: istio-system
+    installed: {{ eq .Values.provider "istio" }}
+    values:
+    - {{ toYaml .Values | nindent 6 }}
+    labels:
+      type: gateway-provider
+      kind: gateway-crds
+
+  - name: istiod
+    chart: oci://gcr.io/istio-testing/charts/istiod
+    version: {{ .Values.istio.tag }}
+    namespace: istio-system
+    installed: {{ eq .Values.provider "istio" }}
+    needs:
+      - istio-system/istio-base
+
+    values:
+    - {{ toYaml .Values | nindent 6 }}
+    - meshConfig:
+        defaultConfig:
+          proxyMetadata:
+            ENABLE_GATEWAY_API_INFERENCE_EXTENSION: "true"
+      pilot:
+        env:
+          ENABLE_GATEWAY_API_INFERENCE_EXTENSION: "true"
+      tag: {{ .Values.istio.tag }}
+      hub: "gcr.io/istio-testing"
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "../scripts/install-gateway-inference-extension-crds.sh"
+        args:
+          - "{{`{{ .Values.version }}`}}"
+    labels:
+      type: gateway-provider
+      kind: gateway-control-plane

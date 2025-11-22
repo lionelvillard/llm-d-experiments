@@ -1,0 +1,22 @@
+apiVersion: inference.networking.k8s.io/v1
+kind: InferencePool
+metadata:
+  name: granite-3-2-8b-instruct-epp
+  annotations:
+    activator.llm-d.ai/target-apiversion: apps/v1
+    activator.llm-d.ai/target-kind: Deployment
+    activator.llm-d.ai/target-name: granite-3-2-8b-instruct
+spec:
+  selector:
+    matchLabels:
+      llm-d.ai/model: "granite-3-2-8b-instruct"
+      llm-d.ai/inferenceServing: "true"
+  endpointPickerRef:
+    failureMode: FailClose
+    group: ""
+    kind: Service
+    name: granite-3-2-8b-instruct-epp
+    port:
+      number: 9002
+  targetPorts:
+    - number: 8000

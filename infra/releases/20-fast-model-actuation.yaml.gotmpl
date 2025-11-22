@@ -1,0 +1,15 @@
+{{- $ns := .Namespace | default "llm-d" -}}
+
+repositories:
+  - name: llm-d-fast-model-actuation
+    url: git+https://github.com/llm-d-incubation/llm-d-fast-model-actuation@charts?ref=v0.2.0
+
+releases:
+  - name: "fast-model-actuation"
+    namespace: {{ $ns }}
+    chart: llm-d-fast-model-actuation/dual-pod-controller
+    values:
+    - {{ toYaml .Values | nindent 6 }}
+    installed: {{ .Values.enabled | default false }}
+    labels:
+      kind: inference-stack

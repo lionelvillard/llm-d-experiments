@@ -1,0 +1,43 @@
+# Ideally each backend model would have its own HTTPRoute but due to an
+# existing bug in Istio Gateway API implementation, we need to put all model routes
+# in a single HTTPRoute resource.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: model-routes
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: gateway
+  rules:
+    - backendRefs:
+      - group: inference.networking.k8s.io
+        kind: InferencePool
+        name: granite-3-2-8b-instruct-epp
+        port: 8000
+      filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            replacePrefixMatch: /
+            type: ReplacePrefixMatch
+      matches:
+      - path:
+          type: PathPrefix
+          value: /granite3
+    # - backendRefs:
+    #   - group: inference.networking.k8s.io
+    #     kind: InferencePool
+    #     name: llama3-8b-instruct-epp
+    #     port: 8000
+    #   filters:
+    #   - type: URLRewrite
+    #     urlRewrite:
+    #       path:
+    #         replacePrefixMatch: /
+    #         type: ReplacePrefixMatch
+    #   matches:
+    #   - path:
+    #       type: PathPrefix
+    #       value: /llama3

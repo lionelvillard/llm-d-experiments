@@ -1,0 +1,87 @@
+# This file contains configuration values for the KIND environment.
+
+# Inference Gateway configuration (helm values)
+gateway:
+  # inference gateway provider (only istio is supported currently)
+  provider: istio
+
+  # inference gateway api extension version
+  version: v1.1.0
+
+  # istio configuration (when provider is istio)
+  istio:
+    tag: 1.28-alpha.5ac40f7623575eef9ef32ea9c40c88726f4ba713
+
+# Prometheus monitoring configuration (helm values)
+monitoring:
+  prometheus:
+    enabled: true
+    namespace: monitoring
+    tlsSecretName: prometheus-tls
+
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelector: {}
+    podMonitorNamespaceSelector: {}
+    service:
+      type: ClusterIP
+      port: 9090
+      targetPort: 9090
+      annotations:
+        prometheus.io/scheme: "https"
+    prometheusSpec:
+      web:
+        tlsConfig:
+          cert:
+            secret:
+              name: prometheus-tls
+              key: tls.crt
+          keySecret:
+            name: prometheus-tls
+            key: tls.key
+    extraArgs:
+      # Enable the StatusForConfigurationResources feature gate
+      feature-gates: "StatusForConfigurationResources=true"
+
+# Workload Variant Autoscaler configuration (helm values)
+workloadVariantAutoscaler:
+  enabled: true
+
+  wva:
+    enabled: true
+    metrics:
+      secure: false
+
+    image:
+      repository: ghcr.io/llm-d/workload-variant-autoscaler
+      tag: latest
+    imagePullPolicy: Always
+
+    prometheus:
+      monitoringNamespace: monitoring
+      admissionSecretName: prometheus-kube-prometheus-admission # not used by wva helm chart
+
+      baseURL: "https://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
+      tls:
+        insecureSkipVerify: true
+        caCertPath: "/etc/ssl/certs/prometheus-ca.crt"
+  va:
+    enabled: false
+
+  llmd:
+    enabled: false
+    namespace: llm-d
+
+  hpa:
+    enabled: false
+
+  vllmService:
+    enabled: false
+
+# Fast Model Actuation configuration (helm values)
+fastModelActuation:
+  enabled: true
+  version: v0.2.0
+  Image: "ghcr.io/llm-d-incubation/llm-d-fast-model-actuation/dual-pods-controller:v0.2.0"

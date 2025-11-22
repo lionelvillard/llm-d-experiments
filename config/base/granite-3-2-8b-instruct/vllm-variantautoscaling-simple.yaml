@@ -1,0 +1,8 @@
+apiVersion: llmd.ai/v1alpha1
+kind: VariantAutoscaling
+metadata:
+  name:  granite-3-2-8b-instruct
+  labels:
+    inference.optimization/acceleratorName: "NVIDIA-H100-80GB-HBM3"
+spec:
+  modelID: granite/granite-3-2-8b-instruct

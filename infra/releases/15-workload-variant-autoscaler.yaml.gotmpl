@@ -1,0 +1,29 @@
+{{- $ns := .Namespace | default "llm-d" -}}
+
+repositories:
+  - name: workload-variant-autoscaler
+    url: git+https://github.com/llm-d-incubation/workload-variant-autoscaler@charts?ref=main
+
+releases:
+  - name: "workload-variant-autoscaler"
+    namespace: "workload-variant-autoscaler-system"
+    chart: workload-variant-autoscaler/workload-variant-autoscaler
+    installed: {{ .Values.enabled | default false }}
+    values:
+      - {{ toYaml .Values | nindent 8 }}
+      - wva:
+          prometheus:
+            caCert: |
+{{- exec "kubectl" (list "get" "secret" .Values.wva.prometheus.admissionSecretName "-n" .Values.wva.prometheus.monitoringNamespace "-o" "jsonpath='{.data.ca}'") | trimAll "'" | b64dec | nindent 14 }}
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args:
+          - "apply"
+          - "-f"
+          - "../manifests/wva-service-classes-config.yaml"
+          - "-n"
+          - "workload-variant-autoscaler-system"
+    labels:
+      kind: inference-stack

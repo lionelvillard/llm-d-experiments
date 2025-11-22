@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - destinationrule.yaml # for istio
+  - inferencepool.yaml
+  - inferenceobjectives.yaml # experimental
+  - epp-deployment.yaml
+  - epp-service.yaml
+  - vllm-deployment.yaml
+
+  # Components for autoscaling and monitoring
+  - vllm-variantautoscaling-simple.yaml
+  - vllm-hpa.yaml
+  - vllm-podmonitor.yaml

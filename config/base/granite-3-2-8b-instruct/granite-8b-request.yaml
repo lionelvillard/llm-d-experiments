@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: granite-8b
+  name: granite-8b-request
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: granite-8b
+  template:
+    metadata:
+      annotations:
+        dual-pod.llm-d.ai/admin-port: "8081"
+        dual-pod.llm-d.ai/server-patch: |
+          metadata:
+            labels:
+              - model-reg: ibm-granite
+              - model-repo: granite-3.3-8b-instruct
+              - app: granite-3.3-8b
+              - instance: granite-8b
+          spec:
+            containers:
+            - name: inference-server
+              image: ghcr.io/llm-d/llm-d-cuda:v0.3.1
+              command:
+              - vllm
+              - serve
+              args:
+              - --port=8000
+              - --model=ibm-granite/granite-3.3-8b-instruct
+              - --enable-sleep-mode
+              - --gpu-memory-utilization=0.85
+              env:
+              - name: VLLM_SERVER_DEV_MODE
+                value: "1"
+              - name: HF_HOME
+                value: /model-cache
+              resources:
+                limits:
+                  cpu: "1"
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 8000
+                initialDelaySeconds: 60
+                periodSeconds: 5
+      labels:
+        app: granite-8b
+        instance: granite-8b
+    spec:
+      containers:
+      - image:  ghcr.io/llm-d-incubation/llm-d-fast-model-actuation/requester:v0.2.0
+        imagePullPolicy: IfNotPresent
+        name: inference-server
+        ports:
+        - containerPort: 8080
+          name: probes
+          protocol: TCP
+        - containerPort: 8081
+          name: spi
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 250Mi
+            nvidia.com/gpu: "1"

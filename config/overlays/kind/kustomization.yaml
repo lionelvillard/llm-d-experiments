@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: models
+
+bases:
+  - ../../base/common
+  - ../../base/granite-3-2-8b-instruct
+
+resources:
+  - namespace.yaml
+
+patches:
+  - target:
+      kind: DestinationRule
+      name: granite-3-2-8b-instruct-epp
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: granite-3-2-8b-instruct-epp.models.svc.cluster.local
+
+  - target:
+      kind: Deployment
+      name: granite-3-2-8b-instruct-epp
+    patch: |-
+
+      # Patch EPP Image to use llm-d-inference-scheduler dev version (mutual-exclusion with the next patch)
+      # - op: replace
+      #   path: /spec/template/spec/containers/0/image
+      #   value: ghcr.io/llm-d/llm-d-inference-scheduler:dev
+
+      # Patch EPP Image to use the inference-gateway-extension dev version (mutual-exclusion with the previous patch)
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: us-central1-docker.pkg.dev/k8s-staging-images/gateway-api-inference-extension/epp:81deb19-dirty
+
+      # Set imagePullPolicy to Never for local kind cluster
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+
+      # Enable experimental flow control
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: "ENABLE_EXPERIMENTAL_FLOW_CONTROL_LAYER"
+          value: "true"

@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: granite-3-2-8b-instruct-epp
+spec:
+  host: granite-3-2-8b-instruct-epp.namespace.svc.cluster.local # Patch namespace here
+  trafficPolicy:
+    tls:
+      insecureSkipVerify: true
+      mode: SIMPLE

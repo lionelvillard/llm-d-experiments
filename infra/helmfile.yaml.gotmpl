@@ -1,0 +1,25 @@
+environments:
+  kind: &KIND
+    values:
+     - environments/kind.values.yaml
+  default: &DEFAULT
+    <<: *KIND
+
+---
+
+helmfiles:
+- path: ./releases/10-gateway.istio.yaml.gotmpl
+  values:
+  - {{ toYaml .Values.gateway | nindent 4 }}
+
+- path: ./releases/12-monitoring.yaml.gotmpl
+  values:
+  - {{ toYaml .Values.monitoring | nindent 4 }}
+
+- path: ./releases/15-workload-variant-autoscaler.yaml.gotmpl
+  values:
+  - {{ toYaml .Values.workloadVariantAutoscaler | nindent 4 }}
+
+- path: ./releases/20-fast-model-actuation.yaml.gotmpl
+  values:
+  - {{ toYaml .Values.fastModelActuation | nindent 4 }}
