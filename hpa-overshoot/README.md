@@ -3,7 +3,7 @@
 Self-contained experiment that demonstrates how Kubernetes HPA with external `Value`
 metrics creates a factorial feedback loop when scaling pods with slow startup times.
 
-See [../hpa-overshoot.md](../hpa-overshoot.md) for the full analysis.
+See [hpa-overshoot.md](hpa-overshoot.md) for the full analysis.
 
 ## Prerequisites
 
