@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-server
+  namespace: hpa-overshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue-server
+  template:
+    metadata:
+      labels:
+        app: queue-server
+    spec:
+      containers:
+      - name: queue-server
+        image: hpa-overshoot:latest
+        imagePullPolicy: IfNotPresent
+        args: ["serve", "--addr=:8080"]
+        ports:
+        - containerPort: 8080
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue-server
+  namespace: hpa-overshoot
+spec:
+  selector:
+    app: queue-server
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

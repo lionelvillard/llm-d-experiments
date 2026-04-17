@@ -16,5 +16,5 @@ $ helmfile sync --environment kind -f infra/helmfile.yaml.gotmpl
 Port-forward prometheus to access the metrics UI:
 
 ```bash
-kubectl --namespace monitoring port-forward svc/prometheus-operated 9090:9090
+kubectl --namespace monitoring port-forward svc/prometheus-kube-prometheus-prometheus 9090:9090
 ```

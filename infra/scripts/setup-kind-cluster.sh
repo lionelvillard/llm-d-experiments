@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(dirname "$0")"/utils.sh
 
 echo "setting up kind cluster 'llm-d'... "
-if kind create cluster --name llm-d --config - <<EOF
+if kind create cluster   --config - <<EOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
