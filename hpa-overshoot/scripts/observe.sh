@@ -29,8 +29,8 @@ while true; do
 
     # HPA status.
     HPA_JSON=$(kubectl get hpa worker -n "$NAMESPACE" -o json 2>/dev/null || echo "{}")
-    DESIRED=$(echo "$HPA_JSON" | grep -o '"desiredReplicas":[0-9]*' | head -1 | cut -d: -f2 || echo "N/A")
-    CURRENT=$(echo "$HPA_JSON" | grep -o '"currentReplicas":[0-9]*' | head -1 | cut -d: -f2 || echo "N/A")
+    DESIRED=$(echo "$HPA_JSON" | jq -r '.status.desiredReplicas // "N/A"' 2>/dev/null || echo "N/A")
+    CURRENT=$(echo "$HPA_JSON" | jq -r '.status.currentReplicas // "N/A"' 2>/dev/null || echo "N/A")
 
     # Deployment ready replicas.
     READY=$(kubectl get deployment worker -n "$NAMESPACE" \
