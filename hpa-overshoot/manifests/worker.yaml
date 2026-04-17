@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: hpa-overshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: hpa-overshoot:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        - worker
+        - --server=http://queue-server:8080
+        - --rate=10
+        - --startup-delay=60s
+        - --addr=:8081
+        ports:
+        - containerPort: 8081
+          name: http
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          failureThreshold: 120
+          periodSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 1m
+            memory: 1Mi

@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-adapter
+  namespace: hpa-overshoot
+---
+# Allow prometheus-adapter to delegate authentication to kube-apiserver.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hpa-overshoot:prometheus-adapter:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: hpa-overshoot
+---
+# Allow prometheus-adapter to read the extension-apiserver-authentication configmap.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hpa-overshoot:prometheus-adapter:extension-apiserver-authentication-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: hpa-overshoot
+---
+# Allow the HPA controller to read external metrics.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hpa-overshoot:external-metrics-reader
+rules:
+- apiGroups: ["external.metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hpa-overshoot:external-metrics-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hpa-overshoot:external-metrics-reader
+subjects:
+- kind: ServiceAccount
+  name: horizontal-pod-autoscaler
+  namespace: kube-system
+---
+# Allow prometheus-adapter to list namespaces (required for metric discovery).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hpa-overshoot:prometheus-adapter:namespace-lister
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hpa-overshoot:prometheus-adapter:namespace-lister
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hpa-overshoot:prometheus-adapter:namespace-lister
+subjects:
+- kind: ServiceAccount
+  name: prometheus-adapter
+  namespace: hpa-overshoot

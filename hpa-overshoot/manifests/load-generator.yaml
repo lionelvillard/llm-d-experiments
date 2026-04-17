@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: hpa-overshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: loadgen
+        image: hpa-overshoot:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        - loadgen
+        - --server=http://queue-server:8080
+        - --rate=100
+        resources:
+          requests:
+            cpu: 100m
+            memory: 32Mi
+          limits:
+            cpu: 500m
+            memory: 64Mi
